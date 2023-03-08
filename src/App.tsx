@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
 
-type TeamType = 'A' | 'B';
+type TeamType = 0 | 1;
 
 type Member = {
   name: string
@@ -13,77 +13,45 @@ type Team = {
 }
 
 function App() {
-  const [teamA, setTeamA] = useState<Team>({ name: '', members: [] });
-  const [teamB, setTeamB] = useState<Team>({ name: '', members: [] });
+  // Array.fill を使うとシャローコピーなので teams[0] と teams[1] が同じものを参照してまずい
+  const [teams, setTeams] = useState<Array<Team>>([{ name: '', members: [] }, { name: '', members: [] }]);
 
-  const [newMemberA, setNewMemberA] = useState<Member | null>(null);
-  const [newMemberB, setNewMemberB] = useState<Member | null>(null);
-
+  const [newMembers, setNewMembers] = useState<Array<Member | null>>([null,null]);
   const onClickAddMember = (type: TeamType) => {
-    let team;
-    let newMember;
-    let setTeam;
-    let setNewMember;
-    if (type === 'A') {
-      team = teamA;
-      newMember = newMemberA;
-      setTeam = setTeamA;
-      setNewMember = setNewMemberA;
-    }
-    else {
-      team = teamB;
-      newMember = newMemberB;
-      setTeam = setTeamB;
-      setNewMember = setNewMemberB;
-    }
+    const newMember = newMembers[type];
     if (newMember !== null) {
-      let nextTeam = team;
-      let nextNewMember : Member | null = newMember;
-      nextTeam.members.push(newMember!);
-      setTeam(nextTeam);
-      nextNewMember = null;
-      setNewMember(nextNewMember);
+      let nextTeams = teams.slice();
+      let nextNewMembers = newMembers.slice();
+      nextTeams[type].members.push(newMember!);
+      setTeams(nextTeams);
+      nextNewMembers[type] = null;
+      setNewMembers(nextNewMembers);
     }
-    console.log(team);
+    console.log(teams);
   };
   const memberNameTextBox = (type: TeamType) => {
-    let newMember: Member | null;
-    let setNewMember: (member: Member) => void;
-    if (type === 'A') {
-      newMember = newMemberA;
-      setNewMember = setNewMemberA;
-    }
-    else {
-      newMember = newMemberB;
-      setNewMember = setNewMemberB;
-    }
+    const newMember = newMembers[type];
     return <input type="text" value={newMember?.name ?? ''} onChange={event => {
-      let nextNewMember = newMember;
-      nextNewMember = { name: event.target.value };
-      setNewMember(nextNewMember);
+      let nextNewMembers = newMembers.slice();
+      nextNewMembers[type] = { name: event.target.value };
+      setNewMembers(nextNewMembers);
     }}></input>;
   }
   const addMemberButton = (type: TeamType) => {
     return <button onClick={() => onClickAddMember(type)}>メンバー追加</button>;
   }
   const showMembers = (type: TeamType) => {
-    let team;
-    if (type === 'A') {
-      team = teamA;
-    } else {
-      team = teamB;
-    }
-    return team.members.map(member => <li>{member.name}</li>);
+    return teams[type].members.map(member => <li>{member.name}</li>);
   }
-  
+
   return (
     <div className="App">
-      {memberNameTextBox('A')}
-      {addMemberButton('A')}
-      {showMembers('A')}
-      {memberNameTextBox('B')}
-      {addMemberButton('B')}
-      {showMembers('B')}
+      {memberNameTextBox(0)}
+      {addMemberButton(0)}
+      {showMembers(0)}
+      {memberNameTextBox(1)}
+      {addMemberButton(1)}
+      {showMembers(1)}
     </div>
   );
 }
