@@ -12,10 +12,14 @@ type Team = {
   members: Array<Member>
 }
 
-function App() {
+
+  
+
+
+function TeamTable() {
   // Array.fill を使うとシャローコピーなので teams[0] と teams[1] が同じものを参照してまずい
   const [teams, setTeams] = useState<Array<Team>>([{ name: '', members: [] }, { name: '', members: [] }]);
-
+  
   const [newMembers, setNewMembers] = useState<Array<Member | null>>([null,null]);
   const onClickAddMember = (type: TeamType) => {
     const newMember = newMembers[type];
@@ -27,7 +31,6 @@ function App() {
       nextNewMembers[type] = null;
       setNewMembers(nextNewMembers);
     }
-    console.log(teams);
   };
   const memberNameTextBox = (type: TeamType) => {
     const newMember = newMembers[type];
@@ -56,4 +59,6 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  return <TeamTable />;
+}
