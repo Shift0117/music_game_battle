@@ -1,53 +1,89 @@
 import React, { useState } from 'react';
-import Select from 'react-select';
 import './App.css';
 
+type TeamType = 'A' | 'B';
+
 type Member = {
-  name:string
+  name: string
 }
 
 type Team = {
   name: string,
-  members:Array<Member>
+  members: Array<Member>
 }
 
 function App() {
-  const [teams, teamsState] = useState<Map<string,Team>>(new Map());
-  const [newTeam, newTeamState] = useState<Team | null>(null);
-  const [currentTeam, currentTeamState] = useState<{value:string,label:string} | null>(null);
-  const [newMember,newMemberState] = useState<Member | null>(null);
-  const onClickAddTeam = () => {
-    let newTeams = teams;
-    if (newTeam !== null) {
-      newTeams.set(newTeam.name, {members: newTeam.members,name:newTeam.name });
-    }
-    teamsState(newTeams);
-    newTeamState(null);
-  }
-  const onClickAddMember = () => {
-    if (currentTeam !== null && newMember !== null && teams.get(currentTeam.value) !== null) {
-      let newTeams = teams;
-      let newCurrentTeamMembers = newTeams.get(currentTeam.value)!;
-      newCurrentTeamMembers.members.push(newMember);
-      newTeams.set(currentTeam.value, newCurrentTeamMembers);
-      teamsState(newTeams);
-    }
-    console.log(teams.get(currentTeam?.value!));
+  const [teamA, setTeamA] = useState<Team>({ name: '', members: [] });
+  const [teamB, setTeamB] = useState<Team>({ name: '', members: [] });
 
-  }
-  const TeamSelectMenu = (teams: Map<string,Team>) => {
-    const options = Array.from(teams).map(team => ({ value: team[0], label: team[0] }));
-    return <Select options={options} value={currentTeam} onChange={(event) => { currentTeamState(event); console.log(event); }} />;
-  }
+  const [newMemberA, setNewMemberA] = useState<Member | null>(null);
+  const [newMemberB, setNewMemberB] = useState<Member | null>(null);
 
+  const onClickAddMember = (type: TeamType) => {
+    let team;
+    let newMember;
+    let setTeam;
+    let setNewMember;
+    if (type === 'A') {
+      team = teamA;
+      newMember = newMemberA;
+      setTeam = setTeamA;
+      setNewMember = setNewMemberA;
+    }
+    else {
+      team = teamB;
+      newMember = newMemberB;
+      setTeam = setTeamB;
+      setNewMember = setNewMemberB;
+    }
+    if (newMember !== null) {
+      let nextTeam = team;
+      let nextNewMember : Member | null = newMember;
+      nextTeam.members.push(newMember!);
+      setTeam(nextTeam);
+      nextNewMember = null;
+      setNewMember(nextNewMember);
+    }
+    console.log(team);
+  };
+  const memberNameTextBox = (type: TeamType) => {
+    let newMember: Member | null;
+    let setNewMember: (member: Member) => void;
+    if (type === 'A') {
+      newMember = newMemberA;
+      setNewMember = setNewMemberA;
+    }
+    else {
+      newMember = newMemberB;
+      setNewMember = setNewMemberB;
+    }
+    return <input type="text" value={newMember?.name ?? ''} onChange={event => {
+      let nextNewMember = newMember;
+      nextNewMember = { name: event.target.value };
+      setNewMember(nextNewMember);
+    }}></input>;
+  }
+  const addMemberButton = (type: TeamType) => {
+    return <button onClick={() => onClickAddMember(type)}>メンバー追加</button>;
+  }
+  const showMembers = (type: TeamType) => {
+    let team;
+    if (type === 'A') {
+      team = teamA;
+    } else {
+      team = teamB;
+    }
+    return team.members.map(member => <li>{member.name}</li>);
+  }
+  
   return (
     <div className="App">
-      {TeamSelectMenu(teams)}
-      <input value={newTeam?.name ?? ''} onChange={event => newTeamState({ name: event.target.value, members: [] })}></input>
-      <button onClick={onClickAddTeam}>チーム追加</button>
-      <input value={newMember?.name ?? ''} onChange={event => newMemberState({ name: event.target.value})}></input>
-      <button onClick={onClickAddMember}>メンバー追加</button>
-      
+      {memberNameTextBox('A')}
+      {addMemberButton('A')}
+      {showMembers('A')}
+      {memberNameTextBox('B')}
+      {addMemberButton('B')}
+      {showMembers('B')}
     </div>
   );
 }
