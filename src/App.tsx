@@ -12,15 +12,23 @@ type Team = {
   members: Array<Member>
 }
 
-function TeamTable() {
+type Teams = [Team, Team];
+type Members = [Member, Member];
+
+function TeamTable(teams: Teams, setTeams: (teams: [Team, Team]) => void
+) {
   // Array.fill を使うとシャローコピーなので teams[0] と teams[1] が同じものを参照してまずい
-  const [teams, setTeams] = useState<Array<Team>>([{ name: '', members: [] }, { name: '', members: [] }]);
-  const [newMembers, setNewMembers] = useState<Array<Member | null>>([null,null]);
+  const [newMembers, setNewMembers] = useState<[Member | null, Member | null]>([null, null]);
+
   const onClickAddMember = (type: TeamType) => {
     const newMember = newMembers[type];
     if (newMember !== null) {
-      let nextTeams = teams.slice();
-      let nextNewMembers = newMembers.slice();
+      let nextTeamsArray = teams.slice();
+
+      // ここの書き方絶対もっといいのあるけど分からない
+      let nextTeams: [Team, Team] = [nextTeamsArray[0], nextTeamsArray[1]];
+      let nextNewMembersArray = newMembers.slice();
+      let nextNewMembers: [Member | null, Member | null] = [nextNewMembersArray[0], nextNewMembersArray[1]];
       nextTeams[type].members.push(newMember!);
       setTeams(nextTeams);
       nextNewMembers[type] = null;
@@ -30,7 +38,8 @@ function TeamTable() {
   const memberNameTextBox = (type: TeamType) => {
     const newMember = newMembers[type];
     return <input type="text" value={newMember?.name ?? ''} onChange={event => {
-      let nextNewMembers = newMembers.slice();
+      let nextNewMembersArray = newMembers.slice();
+      let nextNewMembers: [Member | null, Member | null] = [nextNewMembersArray[0], nextNewMembersArray[1]];
       nextNewMembers[type] = { name: event.target.value };
       setNewMembers(nextNewMembers);
     }}></input>;
@@ -44,23 +53,26 @@ function TeamTable() {
 
   return (
     <div>
-    <div className="TeamTable">
-      {memberNameTextBox(0)}
-      {addMemberButton(0)}
-      {showMembers(0)}
-    </div>
+      <div className="TeamTable">
+        {memberNameTextBox(0)}
+        {addMemberButton(0)}
+        {showMembers(0)}
+      </div>
       <div className="TeamTable">
         {memberNameTextBox(1)}
         {addMemberButton(1)}
         {showMembers(1)}
       </div>
-      </div>
+    </div>
   );
 }
 
+// function Versus()
+
 
 export default function App() {
+  const [teams, setTeams] = useState<Teams>([{ name: '', members: [] }, { name: '', members: [] }]);
   return <div className='App'>
-    <TeamTable />
-    </div>;
+    {TeamTable(teams, setTeams)}
+  </div>;
 }
