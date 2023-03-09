@@ -67,12 +67,25 @@ function TeamTable(teams: Teams, setTeams: (teams: [Team, Team]) => void
   );
 }
 
-// function Versus()
+function Versus(teams:Teams) {
+  function renderVersus(members: Members) {
+    return <div>
+      <div className='versus-row'>
+        <label>{members[0].name}</label>
+        <label>VS</label>
+        <label>{members[1].name}</label>
+      </div>
+    </div>
+  }
+  const minLength = Math.min(teams[0].members.length, teams[1].members.length);
+  return Array.from({ length: minLength }, (_, i) => i).map(i => renderVersus([teams[0].members[i], teams[1].members[i]]));
+}
 
 
 export default function App() {
   const [teams, setTeams] = useState<Teams>([{ name: '', members: [] }, { name: '', members: [] }]);
   return <div className='App'>
     {TeamTable(teams, setTeams)}
+    {Versus(teams)}
   </div>;
 }
